@@ -2,7 +2,7 @@
 This draft specification defines five requirements/conformance classes for the Styles API building blocks:
 
 * "core" provides access to styles and their metadata. JSON is a mandatory encoding in requests and responses where JSON schemas have been specified for the Styles API.
-* "manage-styles" adds the capabilities for creating, updating and deleting styles and their metadata.
+* "manage-styles" adds the capabilities for creating, updating and deleting styles.
 * "style-validation" adds the capability to validate a stylesheet.
 
 ////
