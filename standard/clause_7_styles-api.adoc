@@ -44,9 +44,6 @@ The `{baseResource}` is a path template for any API resource with which styles c
 .2+|PUT |manage-styles |<<replace_style>>
 |style-validation |<<style_validate>>
 |DELETE |manage-styles |<<delete_style>>
-.3+|Style metadata .3+|`{baseResource}/styles/{styleId}/metadata` |GET |core |<<get_style_metadata>>
-|PUT |manage-styles |<<replace_style_metadata>>
-|PATCH |manage-styles |<<update_style_metadata>>
 !===
 
 ////
@@ -59,7 +56,9 @@ The `{baseResource}` is a path template for any API resource with which styles c
 
 This standard supports multiple style encodings (stylesheets) per style. For example, an API may publish a "night" style in the style encodings OGC SLD 1.0, OGC SLD 1.1 and Mapbox Style. The client will select the stylesheet that fits best based on its capabilities and preferences.
 
-This standard only specifies Style Metadata as a sub-resource to a Style resource. APIs and other specification may specify additional sub-resources. For example, a Map sub-resource could be provided that returns map representations of the base resource rendered using the style.
+This standard does not specify any sub-resource of a Style resource.
+APIs and other specification may specify sub-resources of a Style resource.
+For example, a Map sub-resource could be provided that returns map representations of the base resource rendered using the style.
 
 [[rc_core]]
 === Requirements Class "Core"
@@ -190,6 +189,26 @@ properties:
           type: string
         title:
           type: string
+        description:
+          type: string
+        keywords:
+          type: string
+	attribution:
+          type: string
+	geoDataClasses:
+          type: array
+          items:
+            type: string
+            format: uri
+        pointOfContact:
+           type: string
+        aiAssistance:
+           description: Acknowledgement of the use of AI assistance to generate the style
+           type: string
+        license:
+           type: string
+        version:
+           type: string
         links:
           type: array
           minItems: 1
@@ -201,13 +220,14 @@ properties:
 ^|C |The `styles` member SHALL include one item for each style currently on the server.
 ^|D |The `id` member of each style SHALL be unique.
 ^|E |Each style SHALL have at least one link to a style encoding supported for the style (link relation type: `stylesheet`) with the `type` attribute stating the media type of the style encoding.
-^|F |Each style SHALL have a link to the style metadata (link relation type: `describedby`) with the `type` attribute stating the media type of the metadata encoding.
-^|G |The `default` member SHALL, if provided, be the `id` of one of the styles in the `styles` array.
-^|H |If a `\http://www.opengis.net/def/rel/ogc/1.0/schema` link to a URI for the schema of the data is available for a style in the style metadata (see <<rec_core_style-md-schema,recommendation /rec/core/style-md-schema>>), a link with the same link relation type SHALL also be provided in the Styles resource.
-^|I |If a thumbnail is available for a style in the style metadata (see <<rec_core_style-md-preview,recommendation /rec/core/style-md-preview>>), a link with the link relation type `preview` SHALL also be provided in the Styles resource. 
+^|F |The `default` member SHALL, if provided, be the `id` of one of the styles in the `styles` array.
+^|G |If a schema is available for the data for which the style is intended, a link to that schema using the link relation `\http://www.opengis.net/def/rel/ogc/1.0/schema` SHALL be included in the Styles resource.
+^|H |If a thumbnail is available for a style in the style metadata, a link with the link relation type `preview` SHALL be provided in the Styles resource. 
 |===
 
-The `\http://www.opengis.net/def/rel/ogc/1.0/schema` and `preview` links are also part of the style metadata. If available, they have to be included for a style in the Styles resource, too, so that clients have access to this information without the need to send requests for all style metadata resources.
+The metadata, including the links to the schema and previews, should also be embedded within the representation of the style, if that is supported by the style encoding.
+Also including this metadata in the Styles resource provide clients access to this information without the need to send requests for each all style resource for discovering
+a specific style of interest.
 
 [[rec_core_style-title]]
 [width="90%",cols="2,6a"]
@@ -239,11 +259,6 @@ The `\http://www.opengis.net/def/rel/ogc/1.0/schema` and `preview` links are als
           "rel": "stylesheet"
         },
         {
-          "href": "https://example.com/api/v1/styles/night/metadata?f=json",
-          "type": "application/json",
-          "rel": "describedby"
-        },
-        {
           "href": "https://registry.example.com/data/schemas/tds/6.1",
           "type": "application/json",
           "rel": "http://www.opengis.net/def/rel/ogc/1.0/schema"
@@ -268,11 +283,6 @@ The `\http://www.opengis.net/def/rel/ogc/1.0/schema` and `preview` links are als
           "href": "https://example.com/api/v1/styles/topographic?f=sld10",
           "type": "application/vnd.ogc.sld+xml;version=1.0",
           "rel": "stylesheet"
-        },
-        {
-          "href": "https://example.com/api/v1/styles/topographic/metadata?f=json",
-          "type": "application/json",
-          "rel": "describedby"
         },
         {
           "href": "https://registry.example.com/data/schemas/tds/6.1",
@@ -312,296 +322,6 @@ This operation returns the stylesheet of a style.
 ^|C |The language used in linguistic text in the response SHALL be consistent with the language stated in the `Content-Language` header.
 |===
 
-The `Content-Language` header in a HTTP response is used to describe the language(s) intended for the audience. If no Content-Language is specified, the default is that the content is intended for all language audiences.
-
-[[get_style_metadata]]
-==== Fetch style metadata
-
-This operation returns the metadata of a style.
-
-[[req_core_style-md-op]]
-[width="90%",cols="2,6a"]
-|===
-^|*Requirement {counter:req-id}* |*/req/core/style-md-op*
-^|A |The server SHALL support the HTTP GET operation at the path `{baseResource}/styles/{styleId}/metadata` for each style metadata referenced from the Styles resource at `{baseResource}/styles`.
-|===
-
-[[req_core_style-md-success]]
-[width="90%",cols="2,6a"]
-|===
-^|*Requirement {counter:req-id}* |*/req/core/style-md-success*
-^|A |A successful execution of the operation SHALL be reported as a response with an HTTP status code `200`.
-^|B |The content of that response SHALL be based upon the following OpenAPI 3.0 schema:
-
-[source,YAML]
-----
-type: object
-required:
-  - id
-properties:
-  id:
-    type: string
-    title: Style Identifier
-    description: the identifier of the style
-  title:
-    type: string
-    title: Title
-    description: a title for the style, suitable for indicating the style usage in a style listing.
-  description:
-    type: string
-    title: Description
-    description: a longer description of the style, including all information needed to facilitate understanding, such as applicability, classification methods, reference to norms and whatever other information the user should be aware of before using the style
-  keywords:
-    type: array
-    title: Keywords
-    description: a list of well-known keywords that would help locating the style in a catalog
-    items:
-      type: string
-  pointOfContact:
-    type: string
-    title: Point of Contact
-    description: information that can be used to contact the authors or custodians for the style (free form, can be anything from an e-mail address to physical address and phone numbers)
-  license:
-    type: string
-    title: License
-    description: the license under which the style is made available
-  created:
-    type: string
-    format: date-time
-    title: Created
-    description: the timestamp when the style was first produced
-  updated:
-    type: string
-    format: date-time
-    title: Updated
-    description: the timestamp of the last style change/revision
-  scope:
-    type: string
-    title: Scope
-    description: the scope of this metadata record, fixed to "style"
-    enum:
-      - style
-  version:
-    type: string
-    title: Version
-    description: the version number for the current stylesheets of the style
-  stylesheets:
-    type: array
-    title: Stylesheets
-    description: the documents in different style encodings in which the style is available
-    items:
-      type: object
-      required:
-        - link
-      properties:
-        title:
-          type: string
-          title: Title
-          description: the title of the encoding language, e.g. Mapbox Style, SLD, GeoCSS or CMSS
-        version:
-          type: string
-          title: Version
-          description: the version of the encoding language used, e.g., 1.0
-        specification:
-          type: string
-          format: url
-          title: Specification
-          description: a link to the style encoding specification, e.g. https://docs.mapbox.com/mapbox-gl-js/style-spec/
-        native:
-          type: boolean
-          title: Native
-          description: true or false, indicating if this is the native encoding of the style, possibly hand prepared, or an on-the-fly conversion, with potential loss of details in the process
-        link:
-          $ref: 'http://schemas.opengis.net/ogcapi/features/part1/1.0/openapi/schemas/link.yaml'
-  layers:
-    type: array
-    title: Data Layers
-    description: the layers involved in the symbolization (which might be just one), and the attributes used by the style for each layer (could be none); while part of this information could be retrieved from the stylesheets themselves, this is a succinct representation enumerating the minimum set of data the style needs in order to actually symbolize data
-    items:
-      type: object
-      required:
-        - id
-      properties:
-        id:
-          type: string
-          title: Identifier
-          description: a layer id, typically the same identifier used in the style to refer to the layer
-        description:
-          type: string
-          title: Description
-          description: a layer description, which can be used to understand the role of the layer in the style
-        dataType:
-          type: string
-          title: Data Type
-          description: the type of data represented in the layer
-          examples:
-            - vector
-            - map
-            - coverage
-            - model
-            - pointCloud
-            - mesh
-        geometryDimension:
-          type: integer
-          title: Geometry Dimension
-          description: 'the dimension of the geometries of the features shown in this layer, if dataType is "vector"; values are (0: points, 1: curves, 2: surfaces, 3: solids); the property will be absent, if the geometries have a mixed dimension or the dimension is unknown'
-          enum:
-            - 0
-            - 1
-            - 2
-            - 3
-        propertiesSchema:
-          type: object
-          title: Attributes
-          description: the properties that the style needs in order to perform filtering, classification, symbolization
-          additionalProperties:
-            $ref: 'https://raw.githubusercontent.com/OAI/OpenAPI-Specification/master/schemas/v3.0/schema.json#/definitions/Schema'
-        sampleData:
-          $ref: 'http://schemas.opengis.net/ogcapi/features/part1/1.0/openapi/schemas/link.yaml'
-  links:
-    type: array
-    title: Links
-    description: links of the style metadata, including the "self" and "alternate" links
-    items:
-      $ref: 'http://schemas.opengis.net/ogcapi/features/part1/1.0/openapi/schemas/link.yaml'
-----
-^|C |The language used in linguistic text in the response SHALL be consistent with the language stated in the `Content-Language` header.
-|===
-
-[[rec_core_style-md-sample-data]]
-[width="90%",cols="2,6a"]
-|===
-^|*Recommendation {counter:rec-id}* |*/rec/core/style-md-sample-data*
-^|A |Sample data that can be used to illustrate the style SHOULD be represented as links with the following link relation types:
-
-* `enclosure` for links to sample data that may be downloaded (e.g. a GeoPackage);
-* `collection` for links to a Collection resource according to OGC API Common (e.g. `/collections/{collectionId}`; the collection may be available as features (tiled or not) or as gridded data);
-* `start` for links to a Features resource according to OGC API Features (e.g. `/collections/{collectionId}/items`; the response may contain a `next` link to additional features);
-* `\http://www.opengis.net/def/rel/ogc/1.0/tilesets-vector` for a link to a Tile Sets resource (e.g. `/collections/{collectionId}/tiles`) with vector tiles.
-* `\http://www.opengis.net/def/rel/ogc/1.0/tilesets-coverage` for a link to a Tile Sets resource (e.g. `/collections/{collectionId}/tiles`) with coverage tiles.
-|===
-
-#TODO: Add guidance for links to coverage data?#
-
-[[rec_core_style-md-schema]]
-[width="90%",cols="2,6a"]
-|===
-^|*Recommendation {counter:rec-id}* |*/rec/core/style-md-schema*
-^|A |If a style can be used to style multiple geospatial datasets that implement a common schema and where a canonical URI exists for the schema, a link with the link relation type `\http://www.opengis.net/def/rel/ogc/1.0/schema` SHOULD be provided. 
-|===
-
-The schema links indicate to clients that the style is suitable for styling any dataset distribution that conforms to the schema identified by the target URI.
-
-Clients that are familiar with the schema that is identified in a schema link will in general have no need for the information in the `layers` member, because they already "know" the layers in the schema and their properties.
-
-NOTE: It has been proposed to register URIs for commonly used schemas in the http://www.opengis.net/def[OGC Definition Server]. The target URIs, if dereferenced, should provide the content of the "layer" member as defined in the style metadata schema.
-
-[[rec_core_style-md-preview]]
-[width="90%",cols="2,6a"]
-|===
-^|*Recommendation {counter:rec-id}* |*/rec/core/style-md-preview*
-^|A |A link to a thumbnail SHOULD be included with link relation `preview` (specified by RFC 6903) and the appropriate media type in the `type` parameter.
-|===
-
-The thumbnail may be an image that is published as a resource in the API. The thumbnail can reference an appropriate raster tile, a map request, etc.
-
-[[example_style_metadata]]
-.Style metadata in JSON
-=================
-[source,JSON]
-----
-{
-  "id": "night",
-  "title": "Topographic night style",
-  "description": "This topographic basemap style is designed to be used in situations with low ambient light. The style supports datasets based on the TDS 6.1 specification.",
-  "keywords": [
-    "basemap",
-    "TDS",
-    "TDS 6.1",
-    "OGC API"
-  ],
-  "pointOfContact": "John Doe",
-  "accessConstraints": "unclassified",
-  "dates": {
-    "creation": "2019-01-01T10:05:00Z",
-    "publication": "2019-01-01T11:05:00Z",
-    "revision": "2019-02-01T11:05:00Z",
-    "validTill": "2019-02-01T11:05:00Z",
-    "receivedOn": "2019-02-01T11:05:00Z"
-  },
-  "scope": "style",
-  "version": "1.0.0",
-  "stylesheets": [
-    {
-      "title": "Mapbox Style",
-      "version": "8",
-      "specification": "https://docs.mapbox.com/mapbox-gl-js/style-spec/",
-      "native": true,
-      "tilingScheme": "GoogleMapsCompatible",
-      "link": {
-        "href": "https://example.org/api/v1/styles/night?f=mapbox",
-        "rel": "stylesheet",
-        "type": "application/vnd.mapbox.style+json"
-      }
-    },
-    {
-      "title": "OGC SLD",
-      "version": "1.0",
-      "native": false,
-      "link": {
-        "href": "https://example.org/api/v1/styles/night?f=sld10",
-        "rel": "stylesheet",
-        "type": "application/vnd.ogc.sld+xml;version=1.0"
-      }
-    }
-  ],
-  "layers": [
-    {
-      "id": "VegetationSrf",
-      "type": "polygon",
-      "sampleData": {
-        "href": "https://demo.ldproxy.net/daraa/collections/VegetationSrf/items?f=json&limit=100",
-        "rel": "start",
-        "type": "application/geo+json"
-      },
-      "attributes": {
-        "F_CODE": {
-          "type": "string"
-        }
-      }
-    },
-    {
-      "id": "HydrographyCrv",
-      "type": "line",
-      "sampleData": {
-        "href": "https://demo.ldproxy.net/daraa/collections/HydrographyCrv/items?f=json&limit=100",
-        "rel": "start",
-        "type": "application/geo+json"
-      },
-      "attributes": {
-        "F_CODE": {
-          "type": "string"
-        }
-      }
-    }
-  ],
-  "links": [
-    {
-      "href": "https://example.org/api/v1/resources/night-thumbnail.png",
-      "rel": "preview",
-      "type": "image/png",
-      "title": "thumbnail of the night style applied to OSM data from Daraa, Syria"
-    },
-    {
-      "href": "https://registry.example.com/data/schemas/tds/6.1",
-      "type": "application/json",
-      "rel": "http://www.opengis.net/def/rel/ogc/1.0/schema"
-    }
-  ]
-}
-----
-=================
-
 [[rc_manage-styles]]
 === Requirements Class "Manage styles"
 
@@ -620,10 +340,7 @@ This section defines requirements for the case when the resources that are creat
 |===
 ^|*Requirement {counter:req-id}* |*/req/manage-styles/resources-endpoint*
 ^|A |For styles, the resources endpoints to create a new style SHALL be URIs specified by the URI template `{baseResource}/styles`.
-^|B |When a new style is created, a minimal style metadata resource SHALL be created at `{baseResource}/styles/{styleId}/metadata`.
 |===
-
-The style metadata will be incomplete and should be updated by the client to keep the style metadata consistent with the style definition.
 
 [[example_style_location]]
 .New style response
@@ -680,7 +397,6 @@ A value `null` will remove the `default` member, i.e., there is no default style
 ^|*Requirement {counter:req-id}* |*/req/manage-styles/resource-endpoint*
 ^|A |For styles, the resource endpoints SHALL be URIs specified by the URI template `{baseResource}/styles/{styleId}`.
 ^|B |The parameter `styleId` SHALL be the `id` property of a style obtained by previously having queried the Styles resource (i.e., responses to GET requests to `{baseResource}/styles`).
-^|C |Additional resource endpoints SHALL be URIs specified by the URI template `{baseResource}/styles/{styleId}/metadata` (style metadata).
 |===
 
 [[replace_style]]
@@ -688,134 +404,27 @@ A value `null` will remove the `default` member, i.e., there is no default style
 
 #TODO: There are two options how to handle PUT on `{baseResource}/styles/{styleId}`, depending on whether the server supports automated derivation of stylesheets in other style encodings.#
 
-#1. The PUT request removes all existing stylesheets of the style. The submitted stylesheet is accepted as the new style definition. If the server supports automatic derivation of stylesheets in other style encodings, it will derive other stylesheets from the new style definition and add them to the style metadata.#
+#1. The PUT request removes all existing stylesheets of the style. The submitted stylesheet is accepted as the new style definition. If the server supports automatic derivation of stylesheets in other style encodings, it will derive other stylesheets from the new style definition.#
 
 #2. The PUT request sets or replaces the current stylesheet for the media type specified in the `Content-Type` header, but leaves other stylesheets of the style untouched. That is, all stylesheets are managed separately by clients.#
 
 #Do we want to support one or both of the options?#
 
-The style metadata resource at `{baseResource}/styles/{styleId}/metadata` is not updated. If the changes affect the metadata, the style metadata needs to be updated to keep the style metadata consistent with the style definition.
+If the changes affect the metadata included in the `/styles` resource, that metadata needs to be updated to remain consistent with the metadata inside the style resource.
 
 [[delete_style]]
 ==== Delete a style
 
 This operation deletes the style with the id `styleId`. If no such style exists, an error is returned.
 
-Deleting a style also deletes the subordinate resources, i.e., the style metadata.
+Deleting a style also deletes any sub-resources associated with the style, for example a map for the style, if one was available.
 
 [[req_manage-styles_styles-delete]]
 [width="90%",cols="2,6a"]
 |===
 ^|*Requirement {counter:req-id}* |*/req/manage-styles/styles-delete*
-^|A |For requests to the style metadata (template `{baseResource}/styles/{styleId}/metadata`), the DELETE operation SHALL not be supported.
-^|B |DELETE requests to a style (template `{baseResource}/styles/{styleId}`) SHALL delete the style metadata of that style, too.
+^|A |DELETE requests to a style (template `{baseResource}/styles/{styleId}`) SHALL delete any sub-resource of that style as well.
 |===
-
-[[replace_style_metadata]]
-==== Replace the metadata of a style
-
-Servers can support the PUT operation on `{baseResource}/styles/{styleId}/metadata` to replace the metadata of the style with the id `styleId`. If no such style exists, an error is returned.
-
-[[per_manage-styles_replace-style-md]]
-[width="90%",cols="2,6a"]
-|===
-^|*Permission {counter:per-id}* |*/per/manage-styles/replace-style-md*
-^|A |The server MAY accept style metadata based on the schema <<req_core_style-md-success,requirement /req/core/style-md-success, item B>> in all encodings supported by the API.
-^|B |The server MAY ignore parts of the submitted metadata, in particular information that is managed by the server.
-|===
-
-For example, links of the link relation types `self` and `alternate` or the `stylesheets` array are in general automatically set by the server.
-
-[[update_style_metadata]]
-==== Update the metadata of a style
-
-The PATCH operation on `{baseResource}/styles/{styleId}/metadata` updates the metadata of the style with the id `styleId`. If no such style exists, an error is returned.
-
-[[req_manage-styles_metadata-update]]
-[width="90%",cols="2,6a"]
-|===
-^|*Requirement {counter:req-id}* |*/req/manage-styles/metadata-update*
-^|Condition |Server implements <<OAFeat-4,OGC API - Features - Part 4: Create, Replace, Update and Delete, Requirements Class "Update">>
-^|Condition |Server advertises support for media type `application/merge-patch+json` in the API definition for PATCH requests at `{baseResource}/styles/{styleId}/metadata`
-^|A |The server SHALL process PATCH requests with a content type `application/merge-patch+json` to such a resource endpoint as specified by <<rfc7396,RFC 7396 (JSON Merge Patch)>>.
-^|B |The content of the request SHALL be based upon the OpenAPI 3.0 schema specified in <<req_core_style-md-success,requirement `/req/core/style-md-success`>>, but with all properties set to `nullable: true` (so that they can be deleted).
-|===
-
-[[rfc7396_quote]]
-From the RFC 7396 (JSON Merge Patch) specification:
-
-[quote]
-____
-A JSON merge patch document describes changes to be
-made to a target JSON document using a syntax that
-closely mimics the document being modified. Recipients
-of a merge patch document determine the exact set of
-changes being requested by comparing the content of
-the provided patch against the current content of the
-target document. If the provided merge patch contains
-members that do not appear within the target, those
-members are added. If the target does contain the
-member, the value is replaced. Null values in the
-merge patch are given special meaning to indicate
-the removal of existing values in the target.
-____
-
-Some examples using JSON Merge Patch:
-
-To add or update the point of contact, the access constraint and the revision date, just send:
-
-[source,JSON]
-----
-{
-  "pointOfContact": "Jane Doe",
-  "accessConstraints": "restricted",
-  "dates": {
-    "revision": "2019-05-17T11:46:12Z"
-  }
-}
-----
-
-To remove the point of contact, the access constraint and the revision date, send:
-
-[source,JSON]
-----
-{
-  "pointOfContact": null,
-  "accessConstraints": null,
-  "dates": {
-    "revision": null
-  }
-}
-----
-
-For arrays the complete array needs to be sent. To add a keyword to the example style metadata object, send:
-
-[source,JSON]
-----
-{
-  "keywords": [ "basemap", "TDS", "TDS 6.1", "OGC API", "new keyword" ]
-}
-----
-
-To remove the "TDS" keyword, send:
-
-[source,JSON]
-----
-{
-  "keywords": [ "basemap", "TDS 6.1", "OGC API", "new keyword" ]
-}
-----
-
-To remove the keywords, send:
-
-[source,JSON]
-----
-{
-  "keywords": null
-}
-----
-
-The same applies to `stylesheets`, `layers` and `links`. To update these members, the complete new array value has to be sent.
 
 ==== Changes to a style with multiple occurrences in an API
 

@@ -77,14 +77,14 @@ If `http://www.opengis.net/spec/ogcapi-styles-1/1.0/conf/style-validation` is su
 
 To create the new style the user sends a POST request with the stylesheet to `http://example.org/styles-api/styles`. `Prefer: handling=strict` may also be added to the request URI to trigger strict validation in this step, if the style validation conformance class is supported.
 
-After a successful creation of the style (in case of a POST request, the URI of the new style `http://example.org/styles-api/styles/{styleId}` is returned in an HTTP header `Location`), the visual style editor will update the style metadata using a PUT or PATCH request to `http://example.org/styles-api/styles/{styleId}/metadata`.
+After a successful creation of the style (in case of a POST request, the URI of the new style `http://example.org/styles-api/styles/{styleId}` is returned in an HTTP header `Location`).
 
 ==== A visual style editor updating an existing style
 
 The process is quite similar to the previous example with the following changes:
 
-* The user will start from an existing style, not with a new style. In other words, the user will open/load the style from the style repository and the editor will fetch a stylesheet of the style from `http://example.org/styles-api/styles/{styleId}` (in the style encoding of choice) and the styles metadata from `http://example.org/styles-api/styles/{styleId}/metadata`.
-* If the style metadata includes links to sample data (e.g., `http://example.org/data-api/collections/TransportationGroundCrv`), the editor may use that data for sample visualizations and perhaps to determine changes to queryables. The user may also select other data sources for these purposes.
+* The user will start from an existing style, not with a new style. In other words, the user will open/load the style from the style repository and the editor will fetch a stylesheet of the style from `http://example.org/styles-api/styles/{styleId}` (in the style encoding of choice)`.
+* If the style metadata within the style sheet itself, or included in the entry for the style at `/styles`,  includes links to sample data (e.g., `http://example.org/data-api/collections/TransportationGroundCrv`), the editor may use that data for sample visualizations and perhaps to determine changes to queryables. The user may also select other data sources for these purposes.
 * Since an existing style is replaced, the style definition will always be updated with a PUT request to `http://example.org/styles-api/styles/{styleId}` (no POST request to `http://example.org/styles-api/styles`, which would create a new style).
 
 ==== A Web API implementing OGC API - Maps

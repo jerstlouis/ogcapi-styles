@@ -25,8 +25,10 @@ The model defines three main concepts:
 style in an encoding like OGC SLD 1.0 or Mapbox Style. Clients will use the
 stylesheet of a style that fits best based on the capabilities of available tools
 and their preferences.
-3. For each style there is **style metadata** available, with general descriptive
-information about the style, structural information (e.g., layers and attributes),
+3. For each style, metadata can be provided within the style sheets themselves,
+as well as in the style entry at `/styles`, with general descriptive
+information about the style, the Geospatial Data Classes intended to be portrayed with the styles,
+links to the schema(s) detailing the layers and attributes available,
 and so forth to allow users to discover and select existing styles for their data.
 
 This model directly maps to the resources and documents in a Styles API,
@@ -50,9 +52,6 @@ OGC API Features, the base resource would be the Collection (path `/collections/
 .2+|PUT |<<replace_style>>
 |<<style_validate>>
 |DELETE |<<delete_style>>
-.3+|Style metadata .3+|`{baseResource}/styles/{styleId}/metadata` |GET |<<get_style_metadata>>
-|PUT |<<replace_style_metadata>>
-|PATCH |<<update_style_metadata>>
 !===
 
 ////

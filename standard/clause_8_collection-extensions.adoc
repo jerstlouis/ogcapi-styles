@@ -119,7 +119,7 @@ type: string
 |===
 ^|*Recommendation {counter:rec-id}* |*/rec/style-info/consistency*
 ^|A |Each style SHOULD have a link for each style encoding supported for the style (link relation: `stylesheet`) with the `type` attribute stating the media type of the style encoding.
-^|B |Each style SHOULD have a link to the style metadata (link relation: `describedby`) with the `type` attribute stating the media type of the metadata encoding.
+^|B |Each style SHOULD include metadata within the style sheets representations, as well as within the entry of the `.../styles`.
 ^|C |The value of the `defaultStyle` member SHOULD be an `id` included in the `styles` array.
 |===
 
@@ -150,11 +150,6 @@ This example links to two styles, "night" and "topographic". Each is available i
           "href": "https://example.com/api/1.0/styles/night?f=sld10",
           "type": "application/vnd.ogc.sld+xml;version=1.0",
           "rel": "stylesheet"
-        },
-        {
-          "href": "https://example.com/api/1.0/styles/night/metadata?f=json",
-          "type": "application/json",
-          "rel": "describedby"
         }
       ]
     },
@@ -171,11 +166,6 @@ This example links to two styles, "night" and "topographic". Each is available i
           "href": "https://example.com/api/1.0/styles/topographic?f=sld10",
           "type": "application/vnd.ogc.sld+xml;version=1.0",
           "rel": "stylesheet"
-        },
-        {
-          "href": "https://example.com/api/1.0/styles/topographic/metadata?f=json",
-          "type": "application/json",
-          "rel": "describedby"
         }
       ]
     }
@@ -184,108 +174,6 @@ This example links to two styles, "night" and "topographic". Each is available i
 }
 ----
 =================
-
-[[patch_style_info]]
-==== Update styles associated with a collection
-
-In the <<get_style_info,previous section>> the additional style information for each feature collection is described. This operation can be used to update the style information.
-
-The PATCH request updates the metadata of the style with the id `styleId`. If no such style exists, an error is returned.
-
-[[req_style-info_patch-style-info-op]]
-[width="90%",cols="2,6a"]
-|===
-^|*Requirement {counter:req-id}* |*/req/style-info/patch-style-info-op*
-^|A |The server SHALL support the HTTP PATCH operation at path `/collection/{collectionId}`.
-^|B |The server SHALL accept content based on the following OpenAPI 3.0 schema:
-
-[source,YAML]
-----
-type: object
-properties:
-  styles:
-    type: array
-    nullable: true
-    items:
-      type: object
-      nullable: true
-      required:
-        - id
-        - links
-      properties:
-        id:
-          type: string
-          nullable: true
-        title:
-          type: string
-          nullable: true
-        links:
-          type: array
-          nullable: true
-          minItems: 1
-          items:
-            $ref: 'http://schemas.opengis.net/ogcapi/features/part1/1.0/openapi/ogcapi-features-1.yaml#/components/schemas/link'
-  defaultStyle:
-    type: string
-    nullable: true
-----
-|===
-
-The only members that may be updated at this time are `styles` and `defaultStyle`. This specification does not specify how servers have to respond to additional content in the request content.
-
-[[req_style-info_patch-style-info-success]]
-[width="90%",cols="2,6a"]
-|===
-^|*Requirement {counter:req-id}* |*/req/style-info/patch-style-info-success*
-^|A |A successful execution of the operation SHALL be reported as a response with a HTTP status code `204`.
-^|B |The style information SHALL be updated by the content submitted in the request as specified by RFC 7396 (JSON Merge Patch).
-|===
-
-In other words, a GET request to `/collections/{collectionId}` after the PATCH operation has to reflect the updated style information.
-
-See the explanations <<rfc7396_quote,in the operation to update style metadata>> for more information about about RFC 7396 (JSON Merge Patch).
-
-Some examples requests and their effect on the Collection resource:
-
-To add or update the default style, just send:
-
-[source,JSON]
-----
-{
-  "defaultStyle": "night"
-}
-----
-
-To remove the default style, send:
-
-[source,JSON]
-----
-{
-  "defaultStyle": null
-}
-----
-
-For arrays the complete array needs to be sent. I.e., to
-update the list of styles, send the complete new array value.
-
-To remove all styles, send:
-
-[source,JSON]
-----
-{
-  "styles": null
-}
-----
-
-[[req_style-info_patch-style-info-error]]
-[width="90%",cols="2,6a"]
-|===
-^|*Requirement {counter:req-id}* |*/req/style-info/patch-style-info-error*
-^|A |If the request does not conform to the requirements (e.g., the patch document is invalid or includes additional members) a response with status code `400` SHALL be returned.
-^|B |If the collection does not exist, a response with status code `404` SHALL be returned.
-^|C |If the patch document appears to be valid, but the server is incapable of processing the request, a response with status code `422` SHALL be returned.
-^|D |If the media type of the patch document is not supported by the API, a response with status code `415` and an `Accept-Patch` header with the supported media types SHALL be returned.
-|===
 
 [[rc_queryables]]
 === Requirements Class "Queryables"
