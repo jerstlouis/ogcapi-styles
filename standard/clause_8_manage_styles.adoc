@@ -3,19 +3,19 @@
 
 include::requirements/requirements_class_manage-styles.adoc[]
 
-This section defines requirements for the case when the resources that are created, replaced, updated and deleted are styles. The general rules for Create/Replace/Delete/Update operations are specified in <<OAFeat-4,OGC API - Common - Part 4: Create, Replace, Update and Delete; Requirements Classes "Create/Replace/Delete" and "Update">>. This section specifies how those requirements apply to the API building blocks for styles.
-
-[[manage-styles_styles-endpoint]]
-=== Resources endpoint
+This section defines requirements for managing style resources that are created, replaced, updated and deleted.
+The general rules for Create/Replace/Delete/Update operations are specified in
+<<OAFeat-4,OGC API - Features - Part 4: Create, Replace, Update and Delete; Requirements Classes "Create/Replace/Delete" and "Update">>.
+This section specifies how those requirements apply to the API building blocks for styles.
 
 [[create_style]]
-==== Create a new style
+=== Publishing a new style
 
-[[req_manage-styles_resources-endpoint]]
+[[req_manage-styles_publish-style]]
 [width="90%",cols="2,6a"]
 |===
 ^|*Requirement {counter:req-id}* |*/req/manage-styles/resources-endpoint*
-^|A |For styles, the resources endpoints to create a new style SHALL be URIs specified by the URI template `{baseResource}/styles`.
+^|A |For styles, the resources endpoints to create a new style (using a `POST` method) SHALL be URIs specified by the URI template `{baseResource}/styles`.
 |===
 
 [[example_style_location]]
@@ -35,7 +35,63 @@ Location: https://example.org/api/v1/styles/night
 [width="90%",cols="2,6a"]
 |===
 ^|*Recommendation {counter:per-id}* |*/rec/manage-styles/id-exists*
-^|A |If the request to create a new style is syntactically valid, but the server assigns new identifiers based on information in the stylesheet and the server already has a style with the identifier stated in the stylesheet, a response with status code `409` SHOULD be returned.
+^|A |If the request to create a new style is syntactically valid, but the server assigns new identifiers based on information in the stylesheet and the server already
+has a style with the identifier stated in the stylesheet, a response with status code `409` SHOULD be returned.
+|===
+
+[[manage-styles_style-endpoint]]
+=== Style resource endpoints
+
+[[req_manage-styles_resource_endpoint]]
+[width="90%",cols="2,6a"]
+|===
+^|*Requirement {counter:req-id}* |*/req/manage-styles/resource-endpoint*
+^|A |For styles, the resource endpoints for individual styles SHALL be URIs specified by the URI template `{baseResource}/styles/{styleId}`.
+^|B |The parameter `styleId` SHALL be the `id` property of a style obtained by previously having queried the Styles resource (i.e., responses to GET requests to `{baseResource}/styles`).
+|===
+
+[[per_manage-styles_put-new-style]]
+[width="90%",cols="2,6a"]
+|===
+^|*Permission {counter:req-id}* |*/req/manage-styles/put-new-style*
+^|A |An Implementation MAY support publishing a new style using a `PUT` operation as described in OGC API - Features - Part 4: CRUD's
+https://docs.ogc.org/DRAFTS/20-002r1.html#_operation_2[`/per/create-replace-delete/put-create` permission], where the `{styleId}` of the PUT operation
+is used as the identifier for the new style resource.
+|===
+
+[[replace_style]]
+=== Replace a style
+
+[[req_manage-styles_replace-style]]
+[width="90%",cols="2,6a"]
+|===
+^|*Requirement {counter:req-id}* |*/req/manage-styles/replace-style*
+^|A |When a style is replaced using a `PUT` method at `{baseResource}/styles/{styleId}`, all representations of that style SHALL be replaced
+based on the new content, including any automatically derived representation in other style encodings.
+|===
+
+[[per_manage-styles_multipart]]
+[width="90%",cols="2,6a"]
+|===
+^|*Permission {counter:per-id}* |*/per/manage-styles/multipart*
+^|A |An Implementation MAY support a multipart encoding media type allowing clients to provide multiple representations of a style in a single operation `PUT` or `POST`
+operation, enabling style repositories which can support multiple style representations without automatic style conversion between representations.
+|===
+
+If the changes affect the metadata included in the `/styles` resource, that metadata needs to be updated to remain consistent with the metadata inside the style resource.
+
+[[delete_style]]
+=== Delete a style
+
+This operation deletes the style with the id `styleId`. If no such style exists, an error is returned.
+
+Deleting a style also deletes any sub-resources associated with the style, for example a map for the style, if one was available.
+
+[[req_manage-styles_styles-delete]]
+[width="90%",cols="2,6a"]
+|===
+^|*Requirement {counter:req-id}* |*/req/manage-styles/styles-delete*
+^|A |DELETE requests to a style (template `{baseResource}/styles/{styleId}`) SHALL delete any sub-resource of that style as well.
 |===
 
 [[update_default_style]]
@@ -63,44 +119,6 @@ properties:
 |===
 
 A value `null` will remove the `default` member, i.e., there is no default style in the style collection. A value that is a valid style identifier in the collection will set that style as the default style. Otherwise an error will be returned.
-
-[[manage-styles_style-endpoint]]
-=== Resource endpoints
-
-[[req_manage-styles_resource_endpoint]]
-[width="90%",cols="2,6a"]
-|===
-^|*Requirement {counter:req-id}* |*/req/manage-styles/resource-endpoint*
-^|A |For styles, the resource endpoints SHALL be URIs specified by the URI template `{baseResource}/styles/{styleId}`.
-^|B |The parameter `styleId` SHALL be the `id` property of a style obtained by previously having queried the Styles resource (i.e., responses to GET requests to `{baseResource}/styles`).
-|===
-
-[[replace_style]]
-=== Replace a style
-
-#TODO: There are two options how to handle PUT on `{baseResource}/styles/{styleId}`, depending on whether the server supports automated derivation of stylesheets in other style encodings.#
-
-#1. The PUT request removes all existing stylesheets of the style. The submitted stylesheet is accepted as the new style definition. If the server supports automatic derivation of stylesheets in other style encodings, it will derive other stylesheets from the new style definition.#
-
-#2. The PUT request sets or replaces the current stylesheet for the media type specified in the `Content-Type` header, but leaves other stylesheets of the style untouched. That is, all stylesheets are managed separately by clients.#
-
-#Do we want to support one or both of the options?#
-
-If the changes affect the metadata included in the `/styles` resource, that metadata needs to be updated to remain consistent with the metadata inside the style resource.
-
-[[delete_style]]
-=== Delete a style
-
-This operation deletes the style with the id `styleId`. If no such style exists, an error is returned.
-
-Deleting a style also deletes any sub-resources associated with the style, for example a map for the style, if one was available.
-
-[[req_manage-styles_styles-delete]]
-[width="90%",cols="2,6a"]
-|===
-^|*Requirement {counter:req-id}* |*/req/manage-styles/styles-delete*
-^|A |DELETE requests to a style (template `{baseResource}/styles/{styleId}`) SHALL delete any sub-resource of that style as well.
-|===
 
 === Changes to a style with multiple occurrences in an API
 
