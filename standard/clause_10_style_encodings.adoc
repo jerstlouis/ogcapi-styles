@@ -35,16 +35,22 @@ The list of operations in a server implementing all conformance classes of this 
 ^|A |In accordance with the SLD/SE standard, the server SHALL accept SLD/SE stylesheets whose root element is a `StyledLayerDescriptor` element.
 |===
 
-The content of a stylesheet document will typically depend on the `{baseResource}`:
+The styling rules inside stylesheet document will typically reference individual feature types and coverages, which potentially may also be available as OGC API collections
+at a `{baseResource}/collections` endpoint:
 
 [[req_sld-se_content]]
 [width="90%",cols="2,6a"]
 |===
 ^|*Requirement {counter:req-id}* |*/req/sld-se/content*
 ^|A |The document SHALL contain one or more `NamedLayer` or `UserLayer` elements, each with at least one `UserStyle`.
-^|B |If `{baseResource}` is a Collection or Landing Page of an API that publishes a dataset (i.e., it includes a Collections resource at `/collections`), names corresponding to
-collection ids SHALL be specified as the `FeatureTypeName` of a `FeatureTypeStyle` (for a feature collection) or as the `CoverageName` of a `CoverageStyle` (for a coverage),
-and/or as the `Name` of a NamedLayer (for compatibility with this alternate approach to associate styles with collections).
+^|B |The specific feature type or coverage being styled SHALL be declared using either an inner schema identifier element
+(`<se:FeatureTypeName>` or `<se:CoverageName>` for SE 1.1;
+`<FeatureTypeName>` inside `<LayerFeatureConstraints>`, or `<Name>` inside `<FeatureTypeStyle>` / `<CoverageStyle>` for SLD 1.0)
+or via the outer container `<Name>` element of a `<NamedLayer>` or `<UserLayer>` as a fallback.
+^|C |The identifiers populated in these elements SHALL resolve to the data in an OGC API collection by matching in this strict order of priority:
+1. An explicit feature type name identified at the individual feature level (e.g., in multi-layer vector tiles, JSON-FG, or a schema role).
+2. The single feature type identifier listed in the `featureTypes` array of the collection description.
+3. The `{collectionId}` of the collection resource itself.
 |===
 
 [[rec_sld-se_style-names]]
@@ -53,15 +59,19 @@ and/or as the `Name` of a NamedLayer (for compatibility with this alternate appr
 ^|*Recommendation {counter:rec-id}* |*/rec/sld-se/style-names*
 ^|A |If a `UserStyle` has a name, it SHOULD correspond to the style id. The name is not relevant for the processing of the style, but may be assigned as the style id when
 posting a new style.
-^|B |The `UserStyle` SHOULD contain a `FeatureTypeStyle` element with a `FeatureTypeName`, or `CoverageStyle` element with a `CoverageName` corresponding to the collection id.
+^|B |For a stylesheet intended to style data available from an OGC API collection, the `UserStyle` SHOULD contain an inner schema identifier element (`<se:FeatureTypeName>`
+for SE 1.1, `<se:CoverageName>` for SE 1.1, or `<FeatureTypeName>` inside `<LayerFeatureConstraints>`, or `<Name>` inside `<FeatureTypeStyle>` / `<CoverageStyle>` for SLD 1.0)
+set to the specific `featureType` name listed in the collection description, or set to the `{collectionId}` if no explicit feature types are listed.
 |===
 
-In the case of a `NamedLayer` with both a `Name` and a `FeatureTypeStyle` with a `FeatureTypeName` (or a `CoverageStyle` with a `CoverageName`), clients should be prepared
-to understand either of them, with the more specific `FeatureTypeName` or `CoverageName` taking priority (as in some cases the `Name` of the `NamedLayer` may refer to a
-particular symbolization, e.g. casing or center line).
+In the case of a `NamedLayer` or `UserLayer` providing both an outer layer `<Name>` and a specific inner schema identifier element
+(`<se:FeatureTypeName>` for SE 1.1, `<se:CoverageName>` for SE 1.1, or `<FeatureTypeName>` inside `<LayerFeatureConstraints>`, or `<Name>` inside `<FeatureTypeStyle>` / `<CoverageStyle>` for SLD 1.0),
+clients and servers could use both elements to resolve the data mapping.
+The more specific inner identifier element takes priority to match individual feature types or coverages, as the outer layer `<Name>` may simply refer to a broader collection
+container or a particular symbolization grouping (e.g., casing or center line).
 
-If there are multiple `UserStyle` elements in a layer, clients should use the style with a name that matches the style id, if there is one. Otherwise they should pick any of
-the styles.
+If there are multiple `UserStyle` elements in a layer, clients should use the style with a name that matches the style id, if there is one.
+Otherwise they should pick any of the styles.
 
 [[rc_mapbox-styles]]
 === Requirements Class "Mapbox Style"
