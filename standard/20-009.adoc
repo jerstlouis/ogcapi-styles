@@ -18,14 +18,13 @@
 :source-highlighter: pygments
 :pygments-style: borland
 :pygments-linenums-mode: table
-:copyrightYear: 2021
+:copyrightYear: 2020-2026
 
 :category: OGC(R) Implementation Standard
 :doc-type: IS
 :standard: ogcapi-styles
 :m_n: 1.0
 
-<<<
 [cols = ">",frame = "none",grid = "none"]
 |===
 |{set:cellbgcolor:#FFFFFF}
@@ -35,10 +34,10 @@
 |Publication Date:   yyyy-mm-dd
 |External identifier of this OGC(R) document: http://www.opengis.net/doc/{doc-type}/{standard}/{m_n}
 |Internal reference number of this OGC(R) document: 20-009
-|Version: link:http://docs.opengeospatial.org/DRAFTS/20-009.html[1.0.0-SNAPSHOT (Editor's draft)]
+|Version: link:http://docs.opengeospatial.org/DRAFTS/20-009.html[1.0.0-draft.2 (Editor's draft)]
 
 |Category: {category}
-|Editor: Clemens Portele
+|Editors: Clemens Portele, Jérôme Jacovella-St-Louis
 |===
 
 [cols = "^", frame = "none"]
@@ -70,7 +69,6 @@ Recipients of this document are invited to submit, with their comments, notifica
 |Document language: 	English
 |===
 
-<<<
 License Agreement
 
 [small]#Permission is hereby granted by the Open Geospatial Consortium, ("Licensor"), free of charge and subject to the terms set forth below, to any person obtaining a copy of this Intellectual Property and any associated documentation, to deal in the Intellectual Property without restriction (except as set forth below), including without limitation the rights to implement, use, copy, modify, merge, publish, distribute, and/or sublicense copies of the Intellectual Property, and to permit persons to whom the Intellectual Property is furnished to do so, provided that all copyright notices on the intellectual property are retained intact and that each person to whom the Intellectual Property is furnished agrees to the terms of this Agreement.#
@@ -85,14 +83,9 @@ Recipients of this document are invited to submit, with their comments, notifica
 
 [small]#Except as contained in this notice, the name of LICENSOR or of any other holder of a copyright in all or part of the Intellectual Property shall not be used in advertising or otherwise to promote the sale, use or other dealings in this Intellectual Property without prior written authorization of LICENSOR or such copyright holder. LICENSOR is and shall at all times be the sole entity that may authorize you or any third party to use certification marks, trademarks or other special designations to indicate compliance with any LICENSOR standards or specifications. This Agreement is governed by the laws of the Commonwealth of Massachusetts. The application to this Agreement of the United Nations Convention on Contracts for the International Sale of Goods is hereby expressly excluded. In the event any provision of this Agreement shall be deemed unenforceable, void or invalid, such provision shall be modified so as to make it valid and enforceable, and as so modified the entire Agreement shall remain in full force and effect. No decision, action or inaction by LICENSOR shall be construed to be a waiver of any rights or remedies available to it.#
 
-<<<
 toc::[]
 
-<<<
 
-////
-Make sure to complete each included document
-////
 include::clause_0_front_material.adoc[]
 
 include::clause_1_scope.adoc[]
@@ -107,28 +100,18 @@ include::clause_5_conventions.adoc[]
 
 include::clause_6_introduction.adoc[]
 
-include::clause_7_styles-api.adoc[]
+include::clause_7_core.adoc[]
 
-////
-include::clause_8_collection-extensions.adoc[]
-////
+include::clause_8_manage_styles.adoc[]
 
-include::clause_9_media_types.adoc[]
+include::clause_9_validate_styles.adoc[]
 
-<<<
+include::clause_10_style_encodings.adoc[]
+
+include::clause_11_media_types.adoc[]
+
 include::annex-a.adoc[]
 
-////
-<<<
-include::annex-n.adoc[]
-////
-
-<<<
-////
-Revision History should be the last annex before the Bibliography
-Bibliography should be the last annex
-////
 include::annex-history.adoc[]
 
-<<<
 include::annex-bibliography.adoc[]

@@ -1,0 +1,37 @@
+[[rc_style-validation]]
+== Requirements Class "Validation of styles"
+
+include::requirements/requirements_class_style-validation.adoc[]
+
+[[style_validate]]
+=== Validate a style
+
+[[req_style-validation_input]]
+[width="90%",cols="2,6a"]
+|===
+^|*Requirement {counter:req-id}* |*/req/style-validation/input*
+^|A |The server SHALL support the `Prefer` header with the https://tools.ietf.org/html/rfc7240#section-4.4["handling=strict" and "handling=lenient" Preferences].
+^|B |The server SHALL support a parameter with the name "dry-run" in POST requests to the path `{baseResource}/styles` and in PUT requests to the path `{baseResource}/styles/{styleId}` with the following schema:
+
+[source,YAML]
+----
+name: validate
+in: query
+required: false
+style: form
+explode: false
+schema:
+  type: boolean
+  default: false
+----
+|===
+
+[[req_style-validation_output]]
+[width="90%",cols="2,6a"]
+|===
+^|*Requirement {counter:req-id}* |*/req/style-validation/output*
+^|A |If the `Prefer` header has been provided in the request with the "handling=strict" preference, the server SHALL validate the submitted stylesheet for conformance with the style encoding. If an error in the stylesheet is identified, a response with status code `400` SHALL be returned.
+^|A |If the `dry-run` parameter has been provided in the request with the value 'true', the server SHALL execute the request except that no style SHALL be created or updated. If no error condition is identified a response with status code `204` SHALL be returned.
+|===
+
+If no parameter `dry-run` is provided or the parameter has the value 'false', the standard response for a Create or Replace operation is returned.

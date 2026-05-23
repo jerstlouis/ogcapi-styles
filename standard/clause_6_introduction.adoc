@@ -89,4 +89,62 @@ The process is quite similar to the previous example with the following changes:
 
 ==== A Web API implementing OGC API - Maps
 
-A Web API that implements the conformance class "Map tile" of the OGC API Maps specification returns geo-referenced bitmap images showing maps. The URI template for the map tiles is `/collections/{collectionId}/styles/{styleId}/map/tiles/{tileMatrixSetId}/{tileMatrix}/{tileRow}/{tileCol}`. If a client requests a map tile for the collection `TransportationGroundCrv` the API will use the style `{styleId}` to render the map. 
+A Web API that implements the conformance class "Map tilesets" of the OGC API Maps specification returns geo-referenced bitmap images showing maps.
+The URI template for the map tiles is `/collections/{collectionId}/styles/{styleId}/map/tiles/{tileMatrixSetId}/{tileMatrix}/{tileRow}/{tileCol}`.
+If a client requests a map tile for the collection `TransportationGroundCrv` the API will use the style `{styleId}` to render the map. 
+
+[[styles-api]]
+==== API building blocks for styles
+
+===== Base resources
+
+Styles can be associated with a variety of resources in an API, for example, a feature dataset, a feature collection, or a coverage. This standard does not restrict the
+resource types with which styles may be associated.
+
+This standard uses the term "base resource" for such resources. In the API, styles are sub-resources of a base resource.
+
+Typical base resources are:
+
+* The API landing page at path `/`.
+** If the API provides distributions of a dataset, then the styles will be associated with the dataset.
+** If the API does not provide access to data, it is a general purpose Styles API and the styles will typically be applicable to a range of data resources available elsewhere.
+* A data collection at path `/collections/{collectionId}`.
+
+===== Resources referenced from styles
+
+Stylesheets often reference external resources, especially symbols and fonts to be used in the rendering process. Symbols are either managed as a single file for each symbol
+or they are organized in a sprite. In a sprite, all symbols are combined into a single bitmap image to reduce memory and the number of http requests.
+
+Since these resources are referenced from stylesheets using a URI of the resource, the details where and how the resources are hosted are not important and this specification
+does not specify API building blocks for publishing such resources.
+
+===== Overview
+
+The API building blocks support the resources and operations listed in the table below with the associated conformance class and the link to the document section that
+specifies the requirements.
+
+The `{baseResource}` is a path template for any API resource with which styles can be associated.
+
+[#tldr2,reftext='{table-caption} {counter:table-num}']
+.Overview of resources and applicable HTTP methods
+[cols="15,24,8,18,25",options="header"]
+!===
+|Resource |Path |HTTP method |Conformance class|Document reference
+|Base resource |`{baseResource}` |GET |core |<<base-resource>>
+|Conformance declaration |`/conformance` |GET |core |<<conformance_declaration>>
+.3+|Styles .3+|`{baseResource}/styles` |GET |core |<<get_styles>>
+.2+|POST |manage-styles |<<create_style>>
+|style-validation |<<style_validate>>
+.4+|Style .4+|`{baseResource}/styles/{styleId}` |GET |core |<<get_style>>
+.2+|PUT |manage-styles |<<replace_style>>
+|style-validation |<<style_validate>>
+|DELETE |manage-styles |<<delete_style>>
+!===
+
+This standard supports multiple style encodings (stylesheets) per style.
+For example, an API may publish a "night" style in the style encodings OGC SLD 1.0, OGC SLD 1.1 and Mapbox Style.
+The client will select the stylesheet that fits best based on its capabilities and preferences.
+
+This standard does not specify any sub-resource of a Style resource.
+APIs and other specification may specify sub-resources of a Style resource.
+For example, a Map sub-resource could be provided that returns map representations of the base resource rendered using the style.

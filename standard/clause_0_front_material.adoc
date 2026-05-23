@@ -98,6 +98,7 @@ The following organizations submitted this Document to the Open Geospatial Conso
 * Leidos
 * Reinventing Geospatial, Inc.
 * US Army Geospatial Center (AGC)
+* Universitat Autònoma de Barcelona (CREAF)
 
 [big]*v.     Submitters*
 
@@ -107,9 +108,10 @@ All questions regarding this submission should be directed to the editor or the 
 |*Name* |*Affiliation*
 
 |Clemens Portele _(editor)_ |interactive instruments GmbH
+|Jérôme Jacovella-St-Louis _(editor)_ |Ecere Corporation
 |Andrea Aime |GeoSolutions
 |Jeff Harrison |US Army Geospatial Center (AGC)
-|Jérôme Jacovella-St-Louis |Ecere Corporation
 |Richard Kim |Reinventing Geospatial, Inc.
 |Panagiotis (Peter) A. Vretanos |Cubewerx Inc. (MariaDB)
+|Joan Masó Pau |Universitat Autònoma de Barcelona (CREAF)
 |===
