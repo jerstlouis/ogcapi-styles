@@ -1,0 +1,146 @@
+== Requirements Classes for Style Encodings
+
+[[rc_sld-se]]
+=== Requirements Class "OGC Styled Layer Descriptor / Symbology Encoding"
+
+include::requirements/requirements_class_sld-se.adoc[]
+
+[[req_sld-se_media-type]]
+[width="90%",cols="2,6a"]
+|===
+^|*Requirement {counter:req-id}* |*/req/sld-se/media-type*
+^|A |Every POST or PUT operation of the server that accepts a stylesheet document as content SHALL support the media type `application/vnd.ogc.sld+xml`.
+^|B |The server SHALL accept either version 1.0 or 1.1 of SLD/SE (or both), specified with media type parameter `;version=1.0` or `;version=1.1`.
+|===
+
+[[req_sld-se_valid]]
+[width="90%",cols="2,6a"]
+|===
+^|*Requirement {counter:req-id}* |*/req/sld-se/valid*
+^|A |Every POST or PUT operation of the server that accepts a stylesheet document as content SHALL accept valid OGC SLD/SE documents without errors for the supported version(s).
+|===
+
+The list of operations in a server implementing all conformance classes of this draft specification is:
+
+* POST `{baseResource}/styles`
+* PUT `{baseResource}/styles/{styleId}`
+
+[[sld-se_content]]
+==== Expected content in an SLD/SE document
+
+[[req_sld-se_root]]
+[width="90%",cols="2,6a"]
+|===
+^|*Requirement {counter:req-id}* |*/req/sld-se/root*
+^|A |In accordance with the SLD/SE standard, the server SHALL accept SLD/SE stylesheets whose root element is a `StyledLayerDescriptor` element.
+|===
+
+The styling rules inside stylesheet document will typically reference individual feature types and coverages, which potentially may also be available as OGC API collections
+at a `{baseResource}/collections` endpoint:
+
+[[req_sld-se_content]]
+[width="90%",cols="2,6a"]
+|===
+^|*Requirement {counter:req-id}* |*/req/sld-se/content*
+^|A |The document SHALL contain one or more `NamedLayer` or `UserLayer` elements, each with at least one `UserStyle`.
+^|B |The specific feature type or coverage being styled SHALL be declared using either an inner schema identifier element
+(`<se:FeatureTypeName>` or `<se:CoverageName>` for SE 1.1;
+`<FeatureTypeName>` inside `<LayerFeatureConstraints>`, or `<Name>` inside `<FeatureTypeStyle>` / `<CoverageStyle>` for SLD 1.0)
+or via the outer container `<Name>` element of a `<NamedLayer>` or `<UserLayer>` as a fallback.
+^|C |The identifiers populated in these elements SHALL resolve to the data in an OGC API collection by matching in this strict order of priority:
+1. An explicit feature type name identified at the individual feature level (e.g., in multi-layer vector tiles, JSON-FG, or a schema role).
+2. The single feature type identifier listed in the `featureTypes` array of the collection description.
+3. The `{collectionId}` of the collection resource itself.
+|===
+
+[[rec_sld-se_style-names]]
+[width="90%",cols="2,6a"]
+|===
+^|*Recommendation {counter:rec-id}* |*/rec/sld-se/style-names*
+^|A |If a `UserStyle` has a name, it SHOULD correspond to the style id. The name is not relevant for the processing of the style, but may be assigned as the style id when
+posting a new style.
+^|B |For a stylesheet intended to style data available from an OGC API collection, the `UserStyle` SHOULD contain an inner schema identifier element (`<se:FeatureTypeName>`
+for SE 1.1, `<se:CoverageName>` for SE 1.1, or `<FeatureTypeName>` inside `<LayerFeatureConstraints>`, or `<Name>` inside `<FeatureTypeStyle>` / `<CoverageStyle>` for SLD 1.0)
+set to the specific `featureType` name listed in the collection description, or set to the `{collectionId}` if no explicit feature types are listed.
+|===
+
+In the case of a `NamedLayer` or `UserLayer` providing both an outer layer `<Name>` and a specific inner schema identifier element
+(`<se:FeatureTypeName>` for SE 1.1, `<se:CoverageName>` for SE 1.1, or `<FeatureTypeName>` inside `<LayerFeatureConstraints>`, or `<Name>` inside `<FeatureTypeStyle>` / `<CoverageStyle>` for SLD 1.0),
+clients and servers could use both elements to resolve the data mapping.
+The more specific inner identifier element takes priority to match individual feature types or coverages, as the outer layer `<Name>` may simply refer to a broader collection
+container or a particular symbolization grouping (e.g., casing or center line).
+
+If there are multiple `UserStyle` elements in a layer, clients should use the style with a name that matches the style id, if there is one.
+Otherwise they should pick any of the styles.
+
+[[rc_mapbox-styles]]
+=== Requirements Class "Mapbox Style"
+
+include::requirements/requirements_class_mapbox-style.adoc[]
+
+[[req_mapbox-styles_media-type]]
+[width="90%",cols="2,6a"]
+|===
+^|*Requirement {counter:req-id}* |*/req/mapbox-style/media-type*
+^|A |Every POST or PUT operation of the server that accepts a stylesheet document as content SHALL support the media type `application/vnd.mapbox.style+json`.
+|===
+
+[[req_mapbox-styles_content]]
+[width="90%",cols="2,6a"]
+|===
+^|*Requirement {counter:req-id}* |*/req/mapbox-style/content*
+^|A |Every POST or PUT operation of the server that accepts a stylesheet document as content SHALL accept valid Mapbox Style documents (version 8) without errors.
+|===
+
+The list of operations in a server implementing all conformance classes of this draft specification is:
+
+* POST `{baseResource}/styles`
+* PUT `{baseResource}/styles/{styleId}`
+
+[[rc_cscss-styles]]
+=== Requirements Class "Cartographic Symbology CSS"
+
+include::requirements/requirements_class_cscss-style.adoc[]
+
+[[req_cscss-styles_media-type]]
+[width="90%",cols="2,6a"]
+|===
+^|*Requirement {counter:req-id}* |*/req/cscss-style/media-type*
+^|A |Every POST or PUT operation of the server that accepts a stylesheet document as content SHALL support the media type `application/vnd.ogc.cartosym+css`.
+|===
+
+[[req_cscss-styles_content]]
+[width="90%",cols="2,6a"]
+|===
+^|*Requirement {counter:req-id}* |*/req/cscss-style/content*
+^|A |Every POST or PUT operation of the server that accepts a stylesheet document as content SHALL accept valid CartoSym-CSS documents without errors.
+|===
+
+The list of operations in a server implementing all conformance classes of this draft specification is:
+
+* POST `{baseResource}/styles`
+* PUT `{baseResource}/styles/{styleId}`
+
+[[rc_csjson-styles]]
+=== Requirements Class "Cartographic Symbology JSON"
+
+include::requirements/requirements_class_csjson-style.adoc[]
+
+[[req_csjson-styles_media-type]]
+[width="90%",cols="2,6a"]
+|===
+^|*Requirement {counter:req-id}* |*/req/csjson-style/media-type*
+^|A |Every POST or PUT operation of the server that accepts a stylesheet document as content SHALL support the media type `application/vnd.ogc.cartosym+json`.
+|===
+
+[[req_csjson-styles_content]]
+[width="90%",cols="2,6a"]
+|===
+^|*Requirement {counter:req-id}* |*/req/csjson-style/content*
+^|A |Every POST or PUT operation of the server that accepts a stylesheet document as content SHALL accept valid CartoSym-JSON Style documents without errors.
+|===
+
+The list of operations in a server implementing all conformance classes of this draft specification is:
+
+* POST `{baseResource}/styles`
+* PUT `{baseResource}/styles/{styleId}`

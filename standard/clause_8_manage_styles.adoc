@@ -1,0 +1,147 @@
+[[rc_manage-styles]]
+== Requirements Class "Manage styles"
+
+include::requirements/requirements_class_manage-styles.adoc[]
+
+This section defines requirements for managing style resources that are created, replaced, updated and deleted.
+The general rules for Create/Replace/Delete/Update operations are specified in
+<<OAFeat-4,OGC API - Features - Part 4: Create, Replace, Update and Delete; Requirements Classes "Create/Replace/Delete" and "Update">>.
+This section specifies how those requirements apply to the API building blocks for styles.
+
+[[create_style]]
+=== Publishing a new style
+
+[[req_manage-styles_publish-style]]
+[width="90%",cols="2,6a"]
+|===
+^|*Requirement {counter:req-id}* |*/req/manage-styles/resources-endpoint*
+^|A |For styles, the resources endpoints to create a new style (using a `POST` method) SHALL be URIs specified by the URI template `{baseResource}/styles`.
+|===
+
+[[example_style_location]]
+.New style response
+=================
+The URI of the new style is `https://example.org/api/v1/styles/night`.
+
+[source]
+----
+HTTP/1.1 201 Created
+Date: Sun, 28 Jul 2019 12:32:34 GMT
+Location: https://example.org/api/v1/styles/night
+----
+=================
+
+[[rec_manage-styles_id-exists]]
+[width="90%",cols="2,6a"]
+|===
+^|*Recommendation {counter:per-id}* |*/rec/manage-styles/id-exists*
+^|A |If the request to create a new style is syntactically valid, but the server assigns new identifiers based on information in the stylesheet and the server already
+has a style with the identifier stated in the stylesheet, a response with status code `409` SHOULD be returned.
+|===
+
+[[manage-styles_style-endpoint]]
+=== Style resource endpoints
+
+[[req_manage-styles_resource_endpoint]]
+[width="90%",cols="2,6a"]
+|===
+^|*Requirement {counter:req-id}* |*/req/manage-styles/resource-endpoint*
+^|A |For styles, the resource endpoints for individual styles SHALL be URIs specified by the URI template `{baseResource}/styles/{styleId}`.
+^|B |The parameter `styleId` SHALL be the `id` property of a style obtained by previously having queried the Styles resource (i.e., responses to GET requests to `{baseResource}/styles`).
+|===
+
+[[per_manage-styles_put-new-style]]
+[width="90%",cols="2,6a"]
+|===
+^|*Permission {counter:req-id}* |*/req/manage-styles/put-new-style*
+^|A |An Implementation MAY support publishing a new style using a `PUT` operation as described in OGC API - Features - Part 4: CRUD's
+https://docs.ogc.org/DRAFTS/20-002r1.html#_operation_2[`/per/create-replace-delete/put-create` permission], where the `{styleId}` of the PUT operation
+is used as the identifier for the new style resource.
+|===
+
+[[replace_style]]
+=== Replace a style
+
+[[req_manage-styles_replace-style]]
+[width="90%",cols="2,6a"]
+|===
+^|*Requirement {counter:req-id}* |*/req/manage-styles/replace-style*
+^|A |When a style is replaced using a `PUT` method at `{baseResource}/styles/{styleId}`, all representations of that style SHALL be replaced
+based on the new content, including any automatically derived representation in other style encodings.
+|===
+
+[[per_manage-styles_multipart]]
+[width="90%",cols="2,6a"]
+|===
+^|*Permission {counter:per-id}* |*/per/manage-styles/multipart*
+^|A |An Implementation MAY support a multipart encoding media type allowing clients to provide multiple representations of a style in a single operation `PUT` or `POST`
+operation, enabling style repositories which can support multiple style representations without automatic style conversion between representations.
+|===
+
+If the changes affect the metadata included in the `/styles` resource, that metadata needs to be updated to remain consistent with the metadata inside the style resource.
+
+[[delete_style]]
+=== Delete a style
+
+This operation deletes the style with the id `styleId`. If no such style exists, an error is returned.
+
+Deleting a style also deletes any sub-resources associated with the style, for example a map for the style, if one was available.
+
+[[req_manage-styles_styles-delete]]
+[width="90%",cols="2,6a"]
+|===
+^|*Requirement {counter:req-id}* |*/req/manage-styles/styles-delete*
+^|A |DELETE requests to a style (template `{baseResource}/styles/{styleId}`) SHALL delete any sub-resource of that style as well.
+|===
+
+[[update_default_style]]
+==== Update the default style
+
+The PATCH operation on `{baseResource}/styles` updates the default style of the style collection.
+
+[[req_manage-styles_default-style-update]]
+[width="90%",cols="2,6a"]
+|===
+^|*Requirement {counter:req-id}* |*/req/manage-styles/default-style-update*
+^|Condition |Server implements <<OAFeat-4,OGC API - Features - Part 4: Create, Replace, Update and Delete, Requirements Class "Update">>
+^|Condition |Server advertises support for media type `application/merge-patch+json` in the API definition for PATCH requests at `{baseResource}/styles`
+^|A |The server SHALL process PATCH requests with a content type `application/merge-patch+json` to such a resource endpoint as specified by <<rfc7396,RFC 7396 (JSON Merge Patch)>>.
+^|B |The content of the request SHALL be based upon the following OpenAPI 3.0 schema:
+
+[source,YAML]
+----
+type: object
+properties:
+  default:
+    type: string
+    nullable: true
+----
+|===
+
+A value `null` will remove the `default` member, i.e., there is no default style in the style collection. A value that is a valid style identifier in the collection will set that style as the default style. Otherwise an error will be returned.
+
+=== Changes to a style with multiple occurrences in an API
+
+An OGC Web API can include multiple style resources with the same style identifier.
+
+Example: An API can provide a style with identifier "night" for a dataset (path `/styles/night`) and for each collection (path template `/collections/{collectionId}/styles/night`). Typically, the style for a collection will not include rendering rules for the data in the other collections in the dataset.
+
+The behavior of an API how a change to one of style resources affects the style resources in the API with the same identier is not specified by this requirements class. Options include:
+
+* APIs may reject update or replace operations on selected style resources. For example, if the stylesheets for the collections are derived from the stylesheet for the dataset, the API can support only changes to the dataset style and provide the collection styles as derived, read-only styles.
+* An API can implement create, update or replace operations for the collection styles so that the changes have the effect of adding, replacing or deleting the definition of the specified style as it pertains to the specified collection. E.g., after a DELETE of `/collections/foo/styles/night`, a future GET of `/collections/foo/styles/night` would return a 404 (Not Found) response, whereas a future GET of `/styles/night` would return a style definition that lacks any mention of collection `foo`.
+* An API can implement create, update or replace operations for the collection styles so that all changes to one style resource have no effect on other style resources including those with the same idetifier.
+
+[[per_manage-styles_styles-with-same-id]]
+[width="90%",cols="2,6a"]
+|===
+^|*Permission {counter:per-id}* |*/per/manage-styles/styles-with-same-id*
+^|A |Changes to a style MAY or MAY NOT change other style resources in the API with the same style identifier.
+|===
+
+[[rec_manage-styles_doc-styles-with-same-id]]
+[width="90%",cols="2,6a"]
+|===
+^|*Recommendation {counter:rec-id}* |*/rec/manage-styles/doc-styles-with-same-id*
+^|A |If the API includes multiple style resources with the same style identifier, the API documentation SHOULD specify how changes to one of the style resource will affect the other style resources with the same identifier.
+|===

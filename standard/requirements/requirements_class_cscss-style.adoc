@@ -1,0 +1,8 @@
+[cols="1,4",width="90%"]
+|===
+2+|*Requirements Class* {set:cellbgcolor:#CACCCE}
+2+|http://www.opengis.net/spec/ogcapi-styles-1/1.0/req/cscss-style {set:cellbgcolor:#FFFFFF}
+|Target type |Web API
+|Dependency |<<rc_core>>
+|Dependency |http://www.opengis.net/spec/cartosym-1/2.0/req/cscss
+|===

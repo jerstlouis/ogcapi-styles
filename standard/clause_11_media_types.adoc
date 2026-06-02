@@ -5,8 +5,30 @@
 
 `text/html` is the HTML media type for all "web pages" provided by the API.
 
-No media types have been formally registered with IANA for the style encodings (Mapbox Styles and OGC SLD).
+No media types have been formally registered with IANA for the style encodings (Mapbox Styles, OGC SLD/SE or CartoSym CSS/JSON).
 Temporary media types in the vnd-branch as specified below are used for now.
+
+=== application/vnd.ogc.cartosym+json
+
+* Type name:  application
+* Subtype name:  vnd.ogc.cartosym+json
+* Encoding considerations:  See RFC 8259, The JavaScript Object Notation (JSON) Data Interchange Format
+* Security considerations:  See Section 12 of RFC 8259
+* Published specification:  link:https://docs.ogc.org/DRAFTS/18-067r4.html#rc-json[OGC Cartographic Symbology - Part 1: Core Model & Encodings (draft, Requirements Class "JSON Styles and Symbology")]
+* Applications that use this media type:  Geographic information systems (GIS)
+* File extension(s): .csjson, .cs.json, .json
+* Intended usage:  COMMON
+* Change controller: OGC
+
+=== application/vnd.ogc.cartosym+css
+
+* Type name:  application
+* Subtype name:  vnd.ogc.cartosym+css
+* Published specification:  link:https://docs.ogc.org/DRAFTS/18-067r4.html#rc-cscss[OGC Cartographic Symbology - Part 1: Core Model & Encodings (draft, Requirements Class "Cartographic Symbology Cascading Style Sheets")]
+* Applications that use this media type:  Geographic information systems (GIS)
+* File extension(s): .cscss
+* Intended usage:  COMMON
+* Change controller: OGC
 
 === application/vnd.mapbox.style+json
 

@@ -1,8 +1,9 @@
 [cols="1,4",width="90%"]
 |===
 2+|*Requirements Class* {set:cellbgcolor:#CACCCE}
-2+|http://www.opengis.net/spec/ogcapi-styles-1/1.0/req/sld-11 {set:cellbgcolor:#FFFFFF}
+2+|http://www.opengis.net/spec/ogcapi-styles-1/1.0/req/sld-se {set:cellbgcolor:#FFFFFF}
 |Target type |Web API
-|Dependency |<<rc_manage-styles>>
+|Dependency |<<rc_core>>
+|Dependency |<<sld10,Styled Layer Descriptor, Version 1.0>>
 |Dependency |<<sld11,Styled Layer Descriptor profile of the Web Map Service Implementation Specification, Version 1.1>>
 |===

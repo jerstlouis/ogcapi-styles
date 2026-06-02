@@ -5,19 +5,17 @@ This draft specification defines five requirements/conformance classes for the S
 * "manage-styles" adds the capabilities for creating, updating and deleting styles.
 * "style-validation" adds the capability to validate a stylesheet.
 
-////
-* "resources" add the capabilities to provide access to resources referenced from stylesheets (symbols, sprites) or style metadata (thumbnails).
-* "manage-resources" add the capabilities for creating, updating and deleting resources.
-////
-
-In addition, there are three requirements/conformance classes for style encodings supported by resources of the API:
+In addition, there are four requirements/conformance classes for style encodings supported by resources of the API:
 
 * "mapbox-styles" supports Mapbox Styles as a style encoding.
-* "sld-10" supports OGC SLD 1.0 as a style encoding.
-* "sld-11" supports OGC SLD 1.1 as a style encoding.
+* "sld-se" supports OGC SLD 1.0 and/or 1.1 as a style encoding.
+* "csjson" supports OGC Cartographic Symbology JSON as a style encoding.
+* "cscss" supports OGC Cartographic Symbology CSS as a style encoding.
 
 The standardization target for all classes is: Web API.
 
-Conformance with this draft specification shall be checked using all the relevant tests specified in Annex A (normative) of this document. The framework, concepts, and methodology for testing, and the criteria to be achieved to claim conformance are specified in the OGC Compliance Testing Policies and Procedures and the OGC Compliance Testing web site.
+Conformance with this draft specification shall be checked using all the relevant tests specified in Annex A (normative) of this document.
+The framework, concepts, and methodology for testing, and the criteria to be achieved to claim conformance are specified in the OGC Compliance Testing Policies and Procedures
+and the OGC Compliance Testing web site.
 
 In order to conform to this draft specification, a software implementation has to implement "core".
