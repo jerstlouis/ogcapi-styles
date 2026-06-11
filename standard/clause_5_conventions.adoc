@@ -33,7 +33,6 @@ The following link relation types registered with the OGC Naming Authority are u
 
 The following link relation types will be registered with the OGC Naming Authority, if the document is approved:
 
-* **\http://www.opengis.net/def/rel/ogc/1.0/schema**: Refers to a schema that data has to conform to to be suitable for use with the link's context.
 * **\http://www.opengis.net/def/rel/ogc/1.0/styles**: Refers to a collection of styles.
 
 Each resource representation includes an array of links. Implementations are free to add additional links for all resources provided by the API.

@@ -52,7 +52,9 @@ or
 
 The first option provides access to GeoJSON features via `http://example.org/data-api/collections/TransportationGroundCrv/items`, the second one provides access to Mapbox Vector Tiles (MVT) encoded data via `http://example.org/data-api/collections/TransportationGroundCrv/tiles`.
 
-In addition, for feature data the visual style editor will look for the conformance class `http://www.opengis.net/spec/ogcapi-features-n/1.0/conf/tbd` to determine the properties of the features and their schema from `http://example.org/data-api/collections/TransportationGroundCrv/schema` in order to use feature attributes in styling rules.
+In addition, for feature data the visual style editor will look for the conformance class `http://www.opengis.net/spec/ogcapi-common-3/1.0/conf/schemas`
+to determine the properties of the features and their schema from `http://example.org/data-api/collections/TransportationGroundCrv/schema` in order to use
+feature attributes in styling rules.
 
 The editor will typically also request information about the features in the collection via a request to `http://example.org/data-api/collections/TransportationGroundCrv`.
 
