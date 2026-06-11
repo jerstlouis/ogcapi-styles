@@ -95,7 +95,7 @@ Deleting a style also deletes any sub-resources associated with the style, for e
 |===
 
 [[update_default_style]]
-==== Update the default style
+=== Update the default style
 
 The PATCH operation on `{baseResource}/styles` updates the default style of the style collection.
 
