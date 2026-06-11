@@ -47,10 +47,6 @@ at a `{baseResource}/collections` endpoint:
 (`<se:FeatureTypeName>` or `<se:CoverageName>` for SE 1.1;
 `<FeatureTypeName>` inside `<LayerFeatureConstraints>`, or `<Name>` inside `<FeatureTypeStyle>` / `<CoverageStyle>` for SLD 1.0)
 or via the outer container `<Name>` element of a `<NamedLayer>` or `<UserLayer>` as a fallback.
-^|C |The identifiers populated in these elements SHALL resolve to the data in an OGC API collection by matching in this strict order of priority:
-1. An explicit feature type name identified at the individual feature level (e.g., in multi-layer vector tiles, JSON-FG, or a schema role).
-2. The single feature type identifier listed in the `featureTypes` array of the collection description.
-3. The `{collectionId}` of the collection resource itself.
 |===
 
 [[rec_sld-se_style-names]]

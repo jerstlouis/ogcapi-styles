@@ -262,3 +262,17 @@ This operation returns the stylesheet of a style.
 ^|B |The content of that response SHALL conform to the media type stated in the `Content-Type` header.
 ^|C |The language used in linguistic text in the response SHALL be consistent with the language stated in the `Content-Language` header.
 |===
+
+[[req_core_style-feature-type]]
+[width="90%",cols="2,6a"]
+|===
+^|*Requirement {counter:req-id}* |*/req/core/style-feature-type*
+^|A a|The feature type identifiers qualifying a styling rule in the style sheet response SHALL resolve to the data in an OGC API collection by matching in this strict order of priority:
+
+1. An explicit feature type name identified at the individual feature level such as
+data layers in multi-layer vector tiles (e.g., layer `name` in https://github.com/mapbox/vector-tile-spec/tree/master/2.1#41-layers[Mapbox Vector Tiles]),
+https://docs.ogc.org/is/21-045r1/21-045r1.html#feature-types[JSON-FG],
+or a schema https://docs.ogc.org/is/23-058r2/23-058r2.html#_type[role].
+2. The single feature type identifier listed in the `featureTypes` array of the collection description.
+3. The `{collectionId}` of the collection resource itself.
+|===
